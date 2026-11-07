@@ -16,7 +16,7 @@ from playwright.sync_api import sync_playwright
 
 EXT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SHOTS = os.path.join(EXT, 'test', 'shots')
-PORT = 8765
+PORT = int(os.environ.get("AR_TEST_PORT", "8765"))
 
 os.makedirs(SHOTS, exist_ok=True)
 

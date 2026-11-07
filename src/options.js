@@ -3,7 +3,17 @@
   'use strict';
 
   const $ = (id) => document.getElementById(id);
-  const RANGES = ['settle', 'rate', 'pitch', 'scale', 'bubbleWidth', 'hideAfterMs'];
+
+  // id do controle -> chave no chrome.storage
+  const KEYMAP = {
+    settle: 'settleMs',
+    rate: 'ttsRate',
+    pitch: 'ttsPitch',
+    scale: 'scale',
+    bubbleWidth: 'bubbleWidth',
+    hideAfterMs: 'hideAfterMs'
+  };
+  const RANGES = Object.keys(KEYMAP);
   const CHECKS = ['speak', 'badge'];
 
   function fmt(key, v) {
@@ -43,12 +53,13 @@
     RANGES.forEach((k) => {
       const el = $(k);
       if (!el) return;
-      if (stored[k] !== undefined) el.value = stored[k];
+      const storeKey = KEYMAP[k];
+      if (stored[storeKey] !== undefined) el.value = stored[storeKey];
       paint(k);
       el.addEventListener('input', () => {
         paint(k);
         const patch = {};
-        patch[k] = Number(el.value);
+        patch[storeKey] = Number(el.value);
         chrome.storage.local.set(patch);
         push(patch);
       });

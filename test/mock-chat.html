@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Chat simulado — Robô Android Reativo</title>
+  <style>
+    body {
+      margin: 0; font-family: system-ui, sans-serif; background: #f3f5f8; color: #14171e;
+      display: flex; justify-content: center; padding: 32px 16px;
+    }
+    .chat { width: 640px; background: #fff; border: 1px solid #e3e7ee; border-radius: 16px; padding: 20px; }
+    h1 { font-size: 16px; margin: 0 0 16px; }
+    .msg { padding: 10px 14px; border-radius: 14px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
+    .user { background: #eef1f6; }
+    .assistant { background: #f0f6e4; border: 1px solid #dfeac9; }
+    .who { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #8a8577; margin-bottom: 4px; }
+    .panel { border-top: 1px solid #eef1f6; margin-top: 18px; padding-top: 16px; }
+    textarea { width: 100%; height: 74px; font-family: inherit; font-size: 14px; padding: 10px; border: 1px solid #e2e6ec; border-radius: 10px; resize: vertical; }
+    button { font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 13px; border-radius: 9px; border: 1px solid #e2e6ec; background: #fff; cursor: pointer; margin: 6px 6px 0 0; }
+    button.green { background: #a4c639; border-color: #a4c639; color: #1d2606; }
+  </style>
+</head>
+<body>
+  <div class="chat">
+    <h1>Chat simulado (data-role="assistant")</h1>
+    <div id="log"></div>
+
+    <div class="panel">
+      <textarea id="input" placeholder="Escreva a mensagem do assistente e envie…"></textarea>
+      <div>
+        <button class="green" id="send">Enviar mensagem</button>
+        <button data-preset="Perfeito! Consegui entregar tudo, parabéns pelo trabalho 🎉">Comemorando</button>
+        <button data-preset="Sinceramente? Isso é muito ruim. Estou muito decepcionado com esse resultado 😞">Triste</button>
+        <button data-preset="Não acredito! Que absurdo, odeio esse erro happening">Irritado</button>
+        <button data-preset="Uau, que coisa incrível!! 😄🔥">Empolgado</button>
+        <button data-preset="Hmm, deixa eu verificar isso antes de afirmar…">Pensando</button>
+        <button data-preset="Amo demais esse design, ficou lindo ❤️">Apaixonado</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const log = document.getElementById('log');
+    function bubble(role, text) {
+      const d = document.createElement('div');
+      d.className = 'msg ' + role;
+      d.setAttribute('data-role', role);
+      d.innerHTML = '<div class="who">' + role + '</div><div class="body"></div>';
+      d.querySelector('.body').textContent = text;
+      log.appendChild(d);
+      return d;
+    }
+    function push(text) {
+      bubble('user', 'pode me ajudar com isso?');
+      const el = bubble('assistant', text);
+      el.scrollIntoView({ block: 'end' });
+    }
+    document.getElementById('send').addEventListener('click', () => {
+      const v = document.getElementById('input').value.trim();
+      if (v) { push(v); document.getElementById('input').value = ''; }
+    });
+    document.querySelectorAll('button[data-preset]').forEach((b) => {
+      b.addEventListener('click', () => push(b.dataset.preset));
+    });
+    // primeira mensagem para o robô já ter com o que trabalhar
+    push('Oi! Estou pronto para ajudar. O que vamos construir hoje?');
+  </script>
+</body>
+</html>

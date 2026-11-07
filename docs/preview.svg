@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" width="1200" height="540"
+     font-family="Outfit, 'Segoe UI', system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8f7f2" />
+      <stop offset="1" stop-color="#eaf1dd" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="540" fill="url(#bg)" />
+  <ellipse cx="210" cy="452" rx="120" ry="18" fill="#14171e" opacity="0.08" />
+  
+  <g transform="translate(70,120) scale(1.35)">
+    <g fill="#A4C639">
+      <path d="M65 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" /><path d="M114 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" />
+      <path d="M6 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" /><path d="M174 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" />
+      <path d="M40 78 H166 V176 A14 14 0 0 1 152 190 H54 A14 14 0 0 1 40 176 Z" />
+      <path d="M61 2 L73 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M146 2 L134 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M40 75 A63 57 0 0 1 166 75 Z" />
+    </g>
+    <g fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"><path d="M67.5 51.5 q6 -7 12 0" /><path d="M126.5 51.5 q6 -7 12 0" /></g>
+    <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M90 63 q13 9 26 0" /></g>
+  </g>
+  <g>
+    <rect x="380" y="92" width="700" height="188" rx="26" fill="#fff" stroke="#e9e3d6" />
+    <path d="M400 278 l-42 38 l62 -30 z" fill="#fff" stroke="#e9e3d6" />
+    <rect x="416" y="122" width="132" height="28" rx="14" fill="#A4C639" opacity="0.18" />
+    <circle cx="432" cy="136" r="5" fill="#A4C639" />
+    <text x="446" y="142" font-size="14" font-weight="700" fill="#4e6b12" letter-spacing="1">EMPOLGADO</text>
+    <text x="416" y="192" font-size="25" font-weight="500" fill="#14171e">Uau, que coisa incr&#237;vel!! O rob&#244; j&#225; est&#225; andando e falando.</text>
+    <text x="416" y="230" font-size="19" fill="#7c7a72">Cada rea&#231;&#227;o da mensagem vira uma anima&#231;&#227;o diferente.</text>
+  </g>
+  <g>
+    <rect x="596" y="300" width="580" height="222" rx="22" fill="#fff" opacity="0.75" stroke="#e9e3d6" />
+    
+  <g transform="translate(624,330) scale(0.62)">
+    <g fill="#A4C639">
+      <path d="M65 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" /><path d="M114 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" />
+      <path d="M6 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" /><path d="M174 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" />
+      <path d="M40 78 H166 V176 A14 14 0 0 1 152 190 H54 A14 14 0 0 1 40 176 Z" />
+      <path d="M61 2 L73 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M146 2 L134 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M40 75 A63 57 0 0 1 166 75 Z" />
+    </g>
+    <g fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"><path d="M67.5 51.5 q6 -7 12 0" /><path d="M126.5 51.5 q6 -7 12 0" /></g>
+    <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M90 63 q13 9 26 0" /></g>
+  </g><text x="686" y="512" text-anchor="middle" font-size="17" font-weight="600" fill="#7c7a72">alegre</text>
+  <g transform="translate(752,330) scale(0.62)">
+    <g fill="#A4C639">
+      <path d="M65 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" /><path d="M114 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" />
+      <path d="M6 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" /><path d="M174 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" />
+      <path d="M40 78 H166 V176 A14 14 0 0 1 152 190 H54 A14 14 0 0 1 40 176 Z" />
+      <path d="M61 2 L73 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M146 2 L134 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M40 75 A63 57 0 0 1 166 75 Z" />
+    </g>
+    <g fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"><path d="M73.5 38.5 c-5 -4.5 -11 1.5 -6 6 l6 6 l6 -6 c5 -4.5 -1 -10.5 -6 -6 z" /><path d="M132.5 38.5 c-5 -4.5 -11 1.5 -6 6 l6 6 l6 -6 c5 -4.5 -1 -10.5 -6 -6 z" /></g>
+    <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M90 63 q13 9 26 0" /></g>
+  </g><text x="814" y="512" text-anchor="middle" font-size="17" font-weight="600" fill="#7c7a72">apaixonado</text>
+  <g transform="translate(880,330) scale(0.62)">
+    <g fill="#A4C639">
+      <path d="M65 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" /><path d="M114 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" />
+      <path d="M6 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" /><path d="M174 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" />
+      <path d="M40 78 H166 V176 A14 14 0 0 1 152 190 H54 A14 14 0 0 1 40 176 Z" />
+      <path d="M61 2 L73 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M146 2 L134 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M40 75 A63 57 0 0 1 166 75 Z" />
+    </g>
+    <g fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"><path d="M67 43 l13 9" /><path d="M140 43 l-13 9" /></g>
+    <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M92 66 q11 -5 22 0" /></g>
+  </g><text x="942" y="512" text-anchor="middle" font-size="17" font-weight="600" fill="#7c7a72">irritado</text>
+  <g transform="translate(1008,330) scale(0.62)">
+    <g fill="#A4C639">
+      <path d="M65 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" /><path d="M114 180 h28 v47 a11 11 0 0 1 -11 11 h-6 a11 11 0 0 1 -11 -11 Z" />
+      <path d="M6 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" /><path d="M174 95.5 a13.5 13.5 0 0 1 27 0 v55 a13.5 13.5 0 0 1 -27 0 Z" />
+      <path d="M40 78 H166 V176 A14 14 0 0 1 152 190 H54 A14 14 0 0 1 40 176 Z" />
+      <path d="M61 2 L73 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M146 2 L134 26" fill="none" stroke="#A4C639" stroke-width="5" stroke-linecap="round" />
+      <path d="M40 75 A63 57 0 0 1 166 75 Z" />
+    </g>
+    <g fill="none" stroke="#fff" stroke-width="4.4" stroke-linecap="round"><circle cx="73.5" cy="43" r="5.4" /><circle cx="132.5" cy="48" r="5.4" /></g>
+    <g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M95 66 h16" /></g>
+  </g><text x="1070" y="512" text-anchor="middle" font-size="17" font-weight="600" fill="#7c7a72">pensando</text>
+  </g>
+</svg>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Opções — Robô Android Reativo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: #f7f5f0;
+      color: #14171e;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 40px 24px 64px; }
+    h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+    .sub { color: #7c7a72; margin: 0 0 28px; }
+    section {
+      background: #fff; border: 1px solid #e9e3d6; border-radius: 14px;
+      padding: 20px 22px; margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    h2 {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #8a8577; margin: 0 0 14px;
+    }
+    .field { display: grid; grid-template-columns: 200px 1fr; gap: 16px; align-items: center; padding: 10px 0; }
+    .field + .field { border-top: 1px solid #f2efe7; }
+    .field label { font-weight: 500; }
+    .field label small { display: block; font-weight: 400; color: #8b8a82; font-size: 12px; }
+    input[type="text"], select {
+      font-family: inherit; font-size: 13px; padding: 8px 10px; width: 100%;
+      border: 1px solid #e2e0d8; border-radius: 9px; background: #fbfbf9; color: #14171e;
+    }
+    input[type="text"]:focus, select:focus { outline: 2px solid #a4c63955; border-color: #a4c639; }
+    input[type="range"] { width: 100%; accent-color: #a4c639; }
+    .row-inline { display: flex; gap: 8px; }
+    button {
+      font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+      border: 1px solid #e2e0d8; background: #fff; color: #2a303c;
+      border-radius: 9px; padding: 8px 13px; transition: all 0.15s;
+    }
+    button:hover { background: #f4f6ef; transform: translateY(-1px); }
+    button.green { background: #a4c639; border-color: #a4c639; color: #1d2606; }
+    .val { font-size: 12px; color: #7c7a72; min-width: 46px; text-align: right; }
+    .switch { position: relative; width: 40px; height: 23px; flex: none; display: inline-block; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; cursor: pointer; background: #dfe3e8; border-radius: 999px; transition: background .18s; }
+    .slider::before {
+      content: ''; position: absolute; height: 17px; width: 17px; left: 3px; top: 3px;
+      background: #fff; border-radius: 50%; transition: transform .18s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .switch input:checked + .slider { background: #a4c639; }
+    .switch input:checked + .slider::before { transform: translateX(17px); }
+    code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: #f2f0e9; padding: 2px 6px; border-radius: 6px; }
+    .note { font-size: 12.5px; color: #7c7a72; margin: 12px 0 0; }
+    .danger { color: #b42318; }
+    footer { color: #8b8a82; font-size: 12px; text-align: center; margin-top: 26px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Robô Android Reativo</h1>
+    <p class="sub">Ajustes do mascote, da voz e da leitura das mensagens.</p>
+
+    <section>
+      <h2>Leitura das mensagens</h2>
+      <div class="field">
+        <label>Seletor CSS<small>Elemento que contém a mensagem do assistente</small></label>
+        <div class="row-inline">
+          <input type="text" id="selector" placeholder="auto-detecção">
+          <button id="b-auto">Detectar</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Selecionar na página<small>Clique na mensagem para vincular</small></label>
+        <div><button id="b-pick" class="green">Selecionar elemento</button></div>
+      </div>
+      <div class="field">
+        <label>Espera de texto<small>Tempo que a mensagem precisa ficar parada</small></label>
+        <div class="row-inline">
+          <input type="range" id="settle" min="200" max="2000" step="50">
+          <span class="val" id="settle-val"></span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Voz</h2>
+      <div class="field">
+        <label>Falar em voz alta<small>Usa a voz do navegador (Web Speech)</small></label>
+        <span class="switch"><input type="checkbox" id="speak"><span class="slider"></span></span>
+      </div>
+      <div class="field">
+        <label>Voz</label>
+        <select id="voice"></select>
+      </div>
+      <div class="field">
+        <label>Velocidade</label>
+        <div class="row-inline"><input type="range" id="rate" min="0.5" max="2" step="0.05"><span class="val" id="rate-val"></span></div>
+      </div>
+      <div class="field">
+        <label>Tom</label>
+        <div class="row-inline"><input type="range" id="pitch" min="0.5" max="2" step="0.05"><span class="val" id="pitch-val"></span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Aparência</h2>
+      <div class="field">
+        <label>Tamanho do robô</label>
+        <div class="row-inline"><input type="range" id="scale" min="0.6" max="1.8" step="0.05"><span class="val" id="scale-val"></span></div>
+      </div>
+      <div class="field">
+        <label>Largura do balão</label>
+        <div class="row-inline"><input type="range" id="bubbleWidth" min="220" max="520" step="10"><span class="val" id="bubbleWidth-val"></span></div>
+      </div>
+      <div class="field">
+        <label>Esconder balão<small>0 = nunca esconder</small></label>
+        <div class="row-inline"><input type="range" id="hideAfterMs" min="0" max="30000" step="1000"><span class="val" id="hideAfterMs-val"></span></div>
+      </div>
+      <div class="field">
+        <label>Mostrar etiqueta de reação<small>Nome do humor detectado</small></label>
+        <span class="switch"><input type="checkbox" id="badge"><span class="slider"></span></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>Zona de risco</h2>
+      <div class="field">
+        <label>Restaurar padrões</label>
+        <div><button id="b-reset" class="danger">Restaurar</button></div>
+      </div>
+    </section>
+
+    <footer>Feito para o Robô Android — a mensagem vira gesto.</footer>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

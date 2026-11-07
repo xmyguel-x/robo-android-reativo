@@ -1,0 +1,4 @@
+.DS_Store
+*.log
+test/shots/*.png
+!test/shots/.gitkeep

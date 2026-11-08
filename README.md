@@ -11,6 +11,7 @@ com a mensagem transcrita em um balão de fala.
 | Comportamento | Detalhe |
 |---|---|
 | **Lê a mensagem** | Observa o DOM e captura o texto do assistente (com streaming: espera o texto parar) |
+| **Acha o chat sozinho** | 3 camadas de detecção — manual, marcador no DOM e descoberta estrutural |
 | **Sente a reação** | Léxico PT-BR/EN + emoji + pontuação → 14 humores detectáveis |
 | **Anima** | Cada humor tem uma animação de corpo, uma expressão facial e partículas |
 | **Fala** | Balão com efeito de máquina de escrever (e voz opcional via Web Speech API) |
@@ -66,13 +67,28 @@ mesmo sem ele, só fica com o ícone padrão do Chrome na barra.
 
 ## Apontar o robô para a sua mensagem
 
-A extensão tenta **auto-detectar** o balão do assistente (`data-role="assistant"`, classes com
-`assistant`/`agent`/`bot`/`mcode`, etc.). Se a sua página usar outra marcação:
+O robô **encontra o chat sozinho**. A detecção acontece em três camadas, nessa ordem:
+
+1. **Manual** — se você já escolheu um elemento no popup, ele manda em tudo.
+2. **Marcador no DOM** — quando a página marca o papel de cada mensagem
+   (`data-role="assistant"`, `data-message-author-role`, `data-author`, `data-testid`,
+   classes como `assistant`/`agent`/`bot`/`mcode`/`mavis`…).
+3. **Estrutural** — quando não há marcador nenhum, a extensão **descobre a lista de mensagens
+   sozinha**: acha os blocos repetidos (mesma tag + mesma classe, com texto), classifica cada um
+   como *assistente*, *usuário* ou *desconhecido* e escolhe os do assistente. Os sinais usados,
+   em ordem: atributos e classes → posição na tela (em chat LTR o usuário fica à direita) →
+   alternância (em chat, as mensagens se alternam; a última resposta é a do assistente).
+
+O popup mostra sempre qual camada está ativa (`Automático — marcador no DOM`,
+`Automático — estrutura do chat`, `Manual`) e quantas mensagens foram lidas.
+
+Se a sua página for muito exótica, aponte manualmente:
 
 1. Abra o popup da extensão → **Selecionar mensagem na página**.
 2. Clique no balão do assistente na página. O seletor CSS é salvo automaticamente.
 
-Você também pode digitar o seletor manualmente em **Opções → Leitura das mensagens**.
+E **Redetectar automaticamente** volta para a detecção por conta própria. Você também pode digitar
+o seletor manualmente em **Opções → Leitura das mensagens**.
 
 ## Opções
 
@@ -106,6 +122,18 @@ python3 test/test_extension.py
 
 O teste carrega a extensão de verdade no Chromium, abre `test/mock-chat.html` e confere injeção
 do mascote, leitura da mensagem, detecção de cada reação, expressão resultante e locomoção.
+
+O mock aceita `?variant=` e reproduz cinco DOMs de chat diferentes — é o que prova a detecção
+automática:
+
+| Variante | DOM | Camada esperada |
+|---|---|---|
+| `role` | `data-role="assistant"` | marcador |
+| `attribute` | `data-message-author-role="assistant"` | marcador |
+| `class` | `class="message assistant"` | marcador |
+| `aligned` | sem marcador, usuário à direita | estrutura |
+| `plain` | sem marcador, sem alinhamento | estrutura |
+
 As capturas ficam em `test/shots/`.
 
 ## Privacidade

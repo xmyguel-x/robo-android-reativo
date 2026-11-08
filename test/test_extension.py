@@ -66,10 +66,38 @@ def main():
         check(page.locator("#ar-root .ar-svg").count() == 1, "SVG do robô presente")
         check(page.locator("#ar-root .ar-bubble").count() == 1, "balão de fala presente")
 
-        # 2. a primeira mensagem do assistente foi lida?
+        # 2. auto-detecção em diferentes DOMs de chat
+        variants = [
+            ("role", "marcador"),      # data-role="assistant"
+            ("attribute", "marcador"), # data-message-author-role="assistant"
+            ("class", "marcador"),     # class="message assistant"
+            ("aligned", "estrutura"),  # sem marcadores, usuário à direita
+            ("plain", "estrutura"),    # sem marcadores, sem alinhamento
+        ]
+        for variant, expect_mode in variants:
+            page.goto(f"http://127.0.0.1:{PORT}/test/mock-chat.html?variant={variant}")
+            page.wait_for_function(
+                "() => { const b = document.querySelector('#ar-root .ar-bubble');"
+                " const t = document.querySelector('#ar-root .ar-text');"
+                " return !!(b && t) && !b.classList.contains('ar-typing') && t.textContent.length > 20; }",
+                timeout=15000,
+            )
+            bubble_text = page.locator("#ar-root .ar-text").inner_text()
+            check("Estou pronto para ajudar" in bubble_text,
+                  f"[{variant}] leu a mensagem do assistente")
+            check("pode me ajudar" not in bubble_text,
+                  f"[{variant}] ignorou a mensagem do usuário")
+            mode = page.evaluate("() => document.querySelector('#ar-root').dataset.arMode")
+            check(mode == expect_mode,
+                  f"[{variant}] modo de detecção = {mode!r} (esperado {expect_mode!r})")
+
+        # 3. a primeira mensagem do assistente foi lida?
+        page.goto(f"http://127.0.0.1:{PORT}/test/mock-chat.html?variant=role")
         page.wait_for_function(
-            "() => (document.querySelector('#ar-root .ar-text')||{}).textContent?.length > 5",
-            timeout=10000,
+            "() => { const b = document.querySelector('#ar-root .ar-bubble');"
+            " const t = document.querySelector('#ar-root .ar-text');"
+            " return !!(b && t) && !b.classList.contains('ar-typing') && t.textContent.length > 20; }",
+            timeout=15000,
         )
         bubble_text = page.locator("#ar-root .ar-text").inner_text()
         check("Estou pronto para ajudar" in bubble_text,

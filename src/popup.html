@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <title>Robô Android Reativo</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -62,6 +61,11 @@
     .link:hover { background: #f0f2ec; color: #14171e; }
     .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #c9ced6; margin-right: 6px; vertical-align: 1px; }
     .dot.on { background: #a4c639; }
+    button.ghost {
+      width: 100%; margin-top: 9px; padding: 6px; font-size: 11.5px; font-weight: 500;
+      background: transparent; border: 1px dashed #d8dde4; color: #7c7a72;
+    }
+    button.ghost:hover { background: #f6f8f4; color: #2a303c; }
   </style>
 </head>
 <body>
@@ -103,6 +107,7 @@
   <div class="card">
     <button class="primary" id="b-pick">Selecionar mensagem na página</button>
     <div class="status" id="status"><span class="dot" id="dot"></span>Carregando…</div>
+    <button class="ghost" id="b-redetect">Redetectar automaticamente</button>
   </div>
 
   <a class="link" id="options" href="#">Mais opções (voz, tamanho, seletor CSS)</a>

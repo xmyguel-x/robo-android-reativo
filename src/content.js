@@ -512,49 +512,223 @@
   }
   /* ------------------------------------------------------------------ *
    * Leitura das mensagens do assistente
+   *
+   * Estratégia em três camadas:
+   *   1. seletor manual (escolhido pelo usuário no popup) — tem prioridade;
+   *   2. marcadores explícitos no DOM (data-role="assistant", classes, ...);
+   *   3. descoberta estrutural: acha a lista de mensagens, classifica cada
+   *      item como assistente/usuário/desconhecido e devolve os do assistente.
    * ------------------------------------------------------------------ */
 
-  const AUTO_SELECTORS = [
+  const ASSISTANT_SELECTORS = [
     '[data-role="assistant"]',
-    '[data-author="assistant"]',
-    '[data-message-author="assistant"]',
     '[data-role="agent"]',
+    '[data-role="bot"]',
+    '[data-role="model"]',
+    '[data-author="assistant"]',
+    '[data-author="agent"]',
+    '[data-author="ai"]',
+    '[data-message-author-role="assistant"]',
+    '[data-message-author-role="agent"]',
+    '[data-message-author="assistant"]',
+    '[data-message-role="assistant"]',
+    '[data-author-role="assistant"]',
+    '[data-sender="assistant"]',
     '[data-testid*="assistant" i]',
     '[data-testid*="agent" i]',
     '[data-testid*="bot" i]',
     '[data-testid*="mcode" i]',
     '[data-testid*="mavis" i]',
+    '[data-testid*="minimax" i]',
     '[class*="assistant" i]',
     '[class*="agent-message" i]',
     '[class*="bot-message" i]',
     '[class*="ai-message" i]',
     '[class*="assistant-message" i]',
+    '[class*="model-response" i]',
+    '[class*="gpt" i]',
     '[class*="mcode" i]',
     '[class*="mavis" i]',
-    '[class*="markdown-body" i]',
-    'article[class*="reply" i]'
+    '[class*="minimax" i]',
+    'article[class*="reply" i]',
+    '[class*="markdown-body" i]'
   ];
 
+  const ASSISTANT_WORDS = /(assistant|assistente|agente|\bagent\b|\bbot\b|\bai\b|modelo|\bmodel\b|gpt|gemini|claude|mcode|mavis|minimax)/i;
+  const USER_WORDS = /(user|usuário|usuario|humano|human|\beu\b|\bme\b|customer|cliente|prompt|pergunta|question)/i;
+
   let activeSelector = '';
+  let activeMode = '';
   let lastText = '';
   let settleTimer = null;
   let detectTimer = null;
+  let group = null;
+  let groupAt = 0;
+  const GROUP_TTL = 3000;
 
   function ownNode(el) {
     return !!(el && el.closest && el.closest('#ar-root'));
   }
 
-  function autoDetect() {
-    let best = null;
-    for (const sel of AUTO_SELECTORS) {
-      let els = [];
-      try { els = Array.from(document.querySelectorAll(sel)); } catch (e) { continue; }
-      const meaningful = els.filter((el) => !ownNode(el) && cleanText(el.innerText || el.textContent).length > 12);
-      if (meaningful.length && (!best || meaningful.length > best.count)) {
-        best = { sel: sel, count: meaningful.length };
+  function textOf(el) {
+    return cleanText(el.innerText || el.textContent || '');
+  }
+
+  /** Classifica um item da lista de mensagens. */
+  function classifyItem(el, parentRect) {
+    const sig = [
+      el.getAttribute('data-role'),
+      el.getAttribute('data-author'),
+      el.getAttribute('data-message-author-role'),
+      el.getAttribute('data-message-role'),
+      el.getAttribute('data-author-role'),
+      el.getAttribute('data-sender'),
+      el.getAttribute('aria-label'),
+      el.getAttribute('itemprop'),
+      el.getAttribute('class'),
+      el.id
+    ].filter(Boolean).join(' ');
+
+    if (ASSISTANT_WORDS.test(sig)) return 'assistant';
+    if (USER_WORDS.test(sig)) return 'user';
+
+    // alinhamento: em chat LTR o usuário costuma ficar à direita
+    const r = el.getBoundingClientRect();
+    if (r.width && parentRect && parentRect.width) {
+      const rel = (r.left - parentRect.left) / parentRect.width;
+      if (rel > 0.55) return 'user';
+      if (rel < 0.3) return 'assistant';
+    }
+    return 'unknown';
+  }
+
+  /** Procura listas de mensagens: irmãos repetidos (mesma tag + classe) com texto. */
+  function structuralCandidates() {
+    const out = [];
+    const nodes = document.querySelectorAll('body *');
+    let visited = 0;
+    for (const el of nodes) {
+      if (++visited > 6000) break;
+      if (ownNode(el)) continue;
+      const tag = el.tagName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') continue;
+      const kids = Array.from(el.children).filter((k) => !ownNode(k));
+      if (kids.length < 2 || kids.length > 40) continue;
+      const buckets = new Map();
+      for (const k of kids) {
+        const sig = k.tagName + '|' + (k.getAttribute('class') || '');
+        if (!buckets.has(sig)) buckets.set(sig, []);
+        buckets.get(sig).push(k);
+      }
+      for (const [sig, items] of buckets) {
+        if (items.length < 2) continue;
+        let substantial = 0;
+        for (const it of items) {
+          if (textOf(it).length > 12) substantial++;
+        }
+        if (substantial < 2) continue;
+        out.push({ parent: el, sig: sig, items: items });
       }
     }
-    return best ? best.sel : '';
+    return out;
+  }
+
+  function detectGroup() {
+    // camada 2 — marcadores explícitos
+    for (const sel of ASSISTANT_SELECTORS) {
+      let els = [];
+      try { els = Array.from(document.querySelectorAll(sel)); } catch (e) { continue; }
+      const good = els.filter((el) => !ownNode(el) && textOf(el).length > 8);
+      if (good.length) {
+        return {
+          mode: 'marcador',
+          selector: sel,
+          parent: good[0].parentElement,
+          sig: null,
+          items: good,
+          roles: good.map(() => 'assistant')
+        };
+      }
+    }
+
+    // camada 3 — descoberta estrutural
+    const cands = structuralCandidates();
+    if (!cands.length) return null;
+
+    let best = null;
+    for (const c of cands) {
+      const pr = c.parent.getBoundingClientRect();
+      const roles = c.items.map((it) => classifyItem(it, pr));
+      const nA = roles.filter((r) => r === 'assistant').length;
+      const nU = roles.filter((r) => r === 'user').length;
+      const nX = roles.filter((r) => r === 'unknown').length;
+
+      let score;
+      if (nA) score = 1000 + nA * 10 - nU * 5;
+      else if (nU) score = 500 + nX * 10;
+      else score = 100 + (nX % 2 === 0 ? 20 : 0);
+      score += Math.min(c.items.length, 20);
+
+      if (!best || score > best.score) {
+        best = { mode: 'estrutura', selector: '', parent: c.parent, sig: c.sig, items: c.items, roles: roles, score: score };
+      }
+    }
+    return best;
+  }
+
+  function currentGroup() {
+    const now = Date.now();
+    if (group && group.parent && group.parent.isConnected && now - groupAt < GROUP_TTL) {
+      if (group.sig) {
+        // re-coleciona os itens do mesmo grupo (pode ter mensagem nova)
+        const kids = Array.from(group.parent.children).filter((k) => !ownNode(k));
+        const same = kids.filter((k) => k.tagName + '|' + (k.getAttribute('class') || '') === group.sig);
+        if (same.length) {
+          group.items = same;
+          group.roles = same.map((it) => classifyItem(it, group.parent.getBoundingClientRect()));
+          return group;
+        }
+      } else if (group.selector) {
+        // modo marcador: reconsulta o seletor para enxergar mensagens novas
+        let els = [];
+        try { els = Array.from(document.querySelectorAll(group.selector)); } catch (e) { els = []; }
+        const good = els.filter((el) => !ownNode(el) && textOf(el).length > 8);
+        if (good.length) {
+          group.items = good;
+          group.roles = good.map(() => 'assistant');
+        }
+        return group;
+      } else {
+        return group;
+      }
+    }
+    group = detectGroup();
+    groupAt = now;
+    if (group) {
+      activeMode = group.mode;
+      activeSelector = group.selector || '';
+    }
+    return group;
+  }
+
+  /** Itens que pertencem ao assistente dentro do grupo detectado. */
+  function assistantItems(g) {
+    if (!g || !g.items.length) return [];
+    const roles = g.roles || [];
+    const nA = roles.filter((r) => r === 'assistant').length;
+    const nU = roles.filter((r) => r === 'user').length;
+
+    if (nA) {
+      return g.items.filter((it, i) => roles[i] === 'assistant' || (roles[i] === 'unknown' && !nU));
+    }
+    if (nU) {
+      // só o usuário é marcado: o resto é do assistente
+      return g.items.filter((it, i) => roles[i] === 'unknown');
+    }
+    // nada marcado: chats alternam usuário/assistente — a última resposta é do assistente
+    const n = g.items.length;
+    const idx = n % 2 === 0 ? n - 1 : n - 2;
+    return idx >= 0 ? [g.items[idx]] : [];
   }
 
   const ROLE_LABEL = /^(assistant|agente|bot|robo|robô|ia|ai|modelo|model|eu|you|sistema|system|user|usuário|usuario|mcode|mavis|minimax|reply|resposta)$/i;
@@ -579,16 +753,23 @@
   }
 
   function readMessages() {
-    const sel = activeSelector || S.selector;
-    if (!sel) return [];
-    let els = [];
-    try { els = Array.from(document.querySelectorAll(sel)); } catch (e) { return []; }
-    return els.filter((el) => !ownNode(el)).map(extractMessage).filter(Boolean);
+    // camada 1 — seletor manual
+    if (S.selector) {
+      let els = [];
+      try { els = Array.from(document.querySelectorAll(S.selector)); } catch (e) { return []; }
+      return els.filter((el) => !ownNode(el)).map(extractMessage).filter(Boolean);
+    }
+    const g = currentGroup();
+    return assistantItems(g).map(extractMessage).filter(Boolean);
   }
 
   function scan() {
     if (!S.enabled) return;
     const messages = readMessages();
+    if (root) {
+      root.dataset.arMode = S.selector ? 'manual' : (activeMode || 'nenhum');
+      root.dataset.arCount = String(messages.length);
+    }
     if (!messages.length) return;
     const text = messages[messages.length - 1];
     if (!text || text === lastText) return;
@@ -613,7 +794,16 @@
   }
 
   function ensureSelector() {
-    activeSelector = S.selector || autoDetect();
+    if (S.selector) {
+      activeSelector = S.selector;
+      activeMode = 'manual';
+      return activeSelector;
+    }
+    const g = currentGroup();
+    if (g) {
+      activeMode = g.mode;
+      activeSelector = g.selector || '';
+    }
     return activeSelector;
   }
 
@@ -726,8 +916,28 @@
       if (!msg) return;
       if (msg.type === 'ar-pick') { startPicker(); sendResponse({ ok: true }); }
       else if (msg.type === 'ar-scan') { ensureSelector(); scan(); sendResponse({ ok: true, selector: activeSelector }); }
+      else if (msg.type === 'ar-reset') {
+        save({ selector: '' });
+        group = null;
+        groupAt = 0;
+        lastText = '';
+        ensureSelector();
+        scan();
+        sendResponse({ ok: true, selector: activeSelector, mode: activeMode });
+      }
       else if (msg.type === 'ar-state') {
-        sendResponse({ ok: true, selector: activeSelector || S.selector, enabled: S.enabled, walk: S.walk, speak: S.speak, lastText: lastText });
+        const msgs = readMessages();
+        if (root) {
+          root.dataset.arMode = S.selector ? 'manual' : (activeMode || 'nenhum');
+          root.dataset.arCount = String(msgs.length);
+        }
+        sendResponse({
+          ok: true,
+          selector: activeSelector || S.selector,
+          mode: S.selector ? 'manual' : (activeMode || ''),
+          count: msgs.length,
+          enabled: S.enabled, walk: S.walk, speak: S.speak, lastText: lastText
+        });
       } else if (msg.type === 'ar-set') { save(msg.patch || {}); applySettings(); sendResponse({ ok: true }); }
       return true;
     });
@@ -754,9 +964,15 @@
   window.addEventListener('resize', onResize);
 
   detectTimer = setInterval(() => {
-    if (!activeSelector || !readMessages().length) {
-      const found = autoDetect();
-      if (found) { activeSelector = found; lastText = ''; scheduleScan(); }
+    if (S.selector) return;
+    const before = activeMode + '|' + activeSelector;
+    group = null;          // força nova descoberta
+    groupAt = 0;
+    const found = ensureSelector();
+    if (!found && !assistantItems(currentGroup()).length) return;
+    if (before !== activeMode + '|' + activeSelector) {
+      lastText = '';
+      scheduleScan();
     }
   }, 5000);
 

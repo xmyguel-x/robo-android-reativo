@@ -9,7 +9,8 @@
       display: flex; justify-content: center; padding: 32px 16px;
     }
     .chat { width: 640px; background: #fff; border: 1px solid #e3e7ee; border-radius: 16px; padding: 20px; }
-    h1 { font-size: 16px; margin: 0 0 16px; }
+    h1 { font-size: 15px; margin: 0 0 4px; }
+    .variant { font-size: 12px; color: #8a8577; margin: 0 0 16px; }
     .msg { padding: 10px 14px; border-radius: 14px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; }
     .user { background: #eef1f6; }
     .assistant { background: #f0f6e4; border: 1px solid #dfeac9; }
@@ -18,11 +19,21 @@
     textarea { width: 100%; height: 74px; font-family: inherit; font-size: 14px; padding: 10px; border: 1px solid #e2e6ec; border-radius: 10px; resize: vertical; }
     button { font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 13px; border-radius: 9px; border: 1px solid #e2e6ec; background: #fff; cursor: pointer; margin: 6px 6px 0 0; }
     button.green { background: #a4c639; border-color: #a4c639; color: #1d2606; }
+
+    /* variante "aligned": sem marcadores de papel; usuário à direita, assistente à esquerda */
+    .aligned .row { display: flex; margin-bottom: 10px; }
+    .aligned .row:nth-child(odd) { justify-content: flex-end; }
+    .aligned .row:nth-child(even) { justify-content: flex-start; }
+    .aligned .bubble { max-width: 72%; padding: 10px 14px; border-radius: 14px; background: #f0f6e4; border: 1px solid #dfeac9; font-size: 14px; }
+    /* variante "plain": sem alinhamento, sem marcadores */
+    .plain .row { margin-bottom: 10px; }
+    .plain .bubble { padding: 10px 14px; border-radius: 14px; background: #f6f7f9; font-size: 14px; }
   </style>
 </head>
 <body>
   <div class="chat">
-    <h1>Chat simulado (data-role="assistant")</h1>
+    <h1>Chat simulado</h1>
+    <p class="variant" id="variant"></p>
     <div id="log"></div>
 
     <div class="panel">
@@ -40,21 +51,47 @@
   </div>
 
   <script>
+    const variant = new URLSearchParams(location.search).get('variant') || 'role';
+    document.getElementById('variant').textContent = 'variante de DOM: ' + variant;
     const log = document.getElementById('log');
-    function bubble(role, text) {
-      const d = document.createElement('div');
-      d.className = 'msg ' + role;
-      d.setAttribute('data-role', role);
-      d.innerHTML = '<div class="who">' + role + '</div><div class="body"></div>';
-      d.querySelector('.body').textContent = text;
-      log.appendChild(d);
-      return d;
+
+    function build(role, text) {
+      let el;
+      if (variant === 'role') {
+        el = document.createElement('div');
+        el.className = 'msg ' + role;
+        el.setAttribute('data-role', role);
+        el.innerHTML = '<div class="who">' + role + '</div><div class="body"></div>';
+        el.querySelector('.body').textContent = text;
+      } else if (variant === 'attribute') {
+        el = document.createElement('div');
+        el.className = 'message';
+        el.setAttribute('data-message-author-role', role);
+        el.textContent = text;
+      } else if (variant === 'class') {
+        el = document.createElement('div');
+        el.className = 'message ' + role;
+        el.textContent = text;
+      } else {
+        // aligned / plain: sem marcadores de papel
+        const row = document.createElement('div');
+        row.className = 'row';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = text;
+        row.appendChild(bubble);
+        el = row;
+      }
+      log.appendChild(el);
+      return el;
     }
+
     function push(text) {
-      bubble('user', 'pode me ajudar com isso?');
-      const el = bubble('assistant', text);
+      build('user', 'pode me ajudar com isso?');
+      const el = build('assistant', text);
       el.scrollIntoView({ block: 'end' });
     }
+
     document.getElementById('send').addEventListener('click', () => {
       const v = document.getElementById('input').value.trim();
       if (v) { push(v); document.getElementById('input').value = ''; }
@@ -62,7 +99,7 @@
     document.querySelectorAll('button[data-preset]').forEach((b) => {
       b.addEventListener('click', () => push(b.dataset.preset));
     });
-    // primeira mensagem para o robô já ter com o que trabalhar
+
     push('Oi! Estou pronto para ajudar. O que vamos construir hoje?');
   </script>
 </body>

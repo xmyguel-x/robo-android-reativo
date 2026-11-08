@@ -5,6 +5,12 @@
   const $ = (id) => document.getElementById(id);
   const tab = { id: null };
 
+  const MODE_LABEL = {
+    manual: 'Manual — você escolheu o elemento',
+    marcador: 'Automático — marcador no DOM',
+    estrutura: 'Automático — estrutura do chat'
+  };
+
   function activeTab() {
     return new Promise((resolve) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -56,6 +62,17 @@
       window.close();
     });
 
+    $('b-redetect').addEventListener('click', async () => {
+      await activeTab();
+      const res = await send({ type: 'ar-reset' });
+      $('status').innerHTML = 'Redetectando…';
+      $('dot').className = 'dot on';
+      if (res) {
+        const mode = MODE_LABEL[res.mode] || 'procurando o chat…';
+        $('status').innerHTML = '<b>' + mode + '</b>';
+      }
+    });
+
     await activeTab();
     const state = await send({ type: 'ar-state' });
     const dot = $('dot');
@@ -64,8 +81,12 @@
       return;
     }
     dot.className = 'dot on';
-    const sel = state.selector || '(detectando…)';
-    $('status').innerHTML = 'Mensagem monitorada: <code>' + escapeHtml(sel) + '</code>';
+    const mode = MODE_LABEL[state.mode] || 'procurando o chat…';
+    const detail = state.selector
+      ? '<code>' + escapeHtml(state.selector) + '</code>'
+      : 'sem seletor fixo';
+    $('status').innerHTML = '<b>' + mode + '</b><br>' + detail +
+      ' · ' + (state.count || 0) + ' mensagem(ns)';
   }
 
   function escapeHtml(s) {

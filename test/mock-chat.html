@@ -53,6 +53,7 @@
   <script>
     const variant = new URLSearchParams(location.search).get('variant') || 'role';
     document.getElementById('variant').textContent = 'variante de DOM: ' + variant;
+    document.querySelector('.chat').classList.add(variant);
     const log = document.getElementById('log');
 
     function build(role, text) {
